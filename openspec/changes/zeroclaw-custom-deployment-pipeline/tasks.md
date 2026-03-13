@@ -1,0 +1,6 @@
+- [x] Verify local build (Done).
+- [ ] Create `package.sh` script.
+- [ ] Create `deploy.sh` script.
+- [ ] Test packaging locally.
+- [ ] Test deployment to US server.
+- [ ] Verify remote service status.
