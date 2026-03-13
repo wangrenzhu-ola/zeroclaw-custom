@@ -43,34 +43,119 @@ if [ -d "python" ]; then
     cp -r python "${STAGING_DIR}/"
 fi
 
-# Scripts (if any useful ones exist, e.g. for install)
-# Maybe copy this package script itself or a setup script?
-# Let's create a simple setup.sh for the remote end
+# Skills
+echo "==> Collecting skills..."
+mkdir -p "${STAGING_DIR}/skills"
+
+# Copy repo skills
+if [ -d ".claude/skills" ]; then
+    cp -r .claude/skills/* "${STAGING_DIR}/skills/" 2>/dev/null || true
+fi
+
+# Copy local trading skill (from parent dir)
+TRADING_SKILL_SRC="../.trae/skills/trading-agents-client"
+if [ -d "$TRADING_SKILL_SRC" ]; then
+    echo "  - Including trading-agents-client..."
+    cp -r "$TRADING_SKILL_SRC" "${STAGING_DIR}/skills/"
+else
+    echo "Warning: trading-agents-client skill not found at $TRADING_SKILL_SRC"
+fi
+
+# Create setup script
 cat <<EOF > "${STAGING_DIR}/setup.sh"
 #!/bin/bash
 set -e
-echo "==> Setting up ZeroClaw..."
+APP_DIR="\$HOME/.zeroclaw"
+BIN_DIR="\$HOME/.cargo/bin"
 
-# Check dependencies
-command -v python3 >/dev/null 2>&1 || { echo "python3 not found"; exit 1; }
+echo "==> Setting up ZeroClaw Environment..."
 
-# Install binary
-if [ -w "/usr/local/bin" ]; then
-    cp bin/zeroclaw /usr/local/bin/
+# 1. Install Dependencies
+echo "  - Checking system dependencies..."
+if command -v apt-get &> /dev/null; then
+    echo "    Detected apt-get. Installing dependencies..."
+    export DEBIAN_FRONTEND=noninteractive
+    apt-get update -qq
+    apt-get install -y python3 python3-pip python3-venv python3-full git curl
+elif command -v apk &> /dev/null; then
+    echo "    Detected apk. Installing dependencies..."
+    apk add python3 py3-pip git curl
+fi
+
+# Ensure python3 is available
+if ! command -v python3 &> /dev/null; then
+    echo "Error: python3 could not be installed."
+    exit 1
+fi
+
+# 2. Install Binary
+echo "  - Installing binary..."
+mkdir -p "\$BIN_DIR"
+cp bin/zeroclaw "\$BIN_DIR/"
+chmod +x "\$BIN_DIR/zeroclaw"
+# Ensure BIN_DIR is in PATH
+if [[ ":\$PATH:" != *":\$BIN_DIR:"* ]]; then
+    echo "export PATH=\"\$BIN_DIR:\$PATH\"" >> ~/.bashrc
+    echo "export PATH=\"\$BIN_DIR:\$PATH\"" >> ~/.zshrc
+fi
+
+# 3. Setup Config
+echo "  - Setting up config..."
+mkdir -p "\$APP_DIR"
+if [ ! -f "\$APP_DIR/config.toml" ]; then
+    cp config/config.toml "\$APP_DIR/"
+    echo "    Config initialized at \$APP_DIR/config.toml"
 else
-    mkdir -p ~/bin
-    cp bin/zeroclaw ~/bin/
-    echo "Added to ~/bin. Ensure it is in your PATH."
+    echo "    Config already exists, skipping overwrite."
 fi
 
-# Setup config
-if [ ! -f ~/.zeroclaw/config.toml ]; then
-    mkdir -p ~/.zeroclaw
-    cp config/config.toml ~/.zeroclaw/
-    echo "Config copied to ~/.zeroclaw/config.toml"
+# 4. Sync Skills
+echo "  - Syncing skills..."
+mkdir -p "\$APP_DIR/skills"
+cp -r skills/* "\$APP_DIR/skills/"
+echo "    Skills synced to \$APP_DIR/skills/"
+
+# 5. Setup Python Environment
+echo "  - Setting up Python environment..."
+if [ -d "python" ]; then
+    mkdir -p "\$APP_DIR/python"
+    # Copy python files (overwrite)
+    cp -r python/* "\$APP_DIR/python/"
+    
+    cd "\$APP_DIR/python"
+    
+    # Recreate venv to ensure consistency and fix broken states
+    if [ -d "venv" ]; then
+        echo "    Removing existing venv..."
+        rm -rf venv
+    fi
+    
+    echo "    Creating new venv..."
+    python3 -m venv venv
+    
+    if [ -f "venv/bin/activate" ]; then
+        source venv/bin/activate
+        # Upgrade pip
+        pip install --upgrade pip
+        
+        if [ -f "requirements.txt" ]; then
+            echo "    Installing requirements..."
+            pip install -r requirements.txt
+        fi
+        # Install package in editable mode if pyproject.toml exists
+        if [ -f "pyproject.toml" ]; then
+            pip install -e .
+        fi
+        deactivate
+        echo "    Python environment ready at \$APP_DIR/python/venv"
+    else
+        echo "Error: Failed to create venv. 'venv/bin/activate' not found."
+        exit 1
+    fi
 fi
 
-echo "==> Setup complete. Run 'zeroclaw' to start."
+echo "==> Setup complete. Restart shell or source ~/.bashrc to update PATH."
+echo "==> Run 'zeroclaw agent' to start."
 EOF
 chmod +x "${STAGING_DIR}/setup.sh"
 
