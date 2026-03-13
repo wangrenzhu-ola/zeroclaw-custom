@@ -1,0 +1,21 @@
+[2m2026-03-13T18:15:47.622012Z[0m [32m INFO[0m [2mzeroclaw::config::schema[0m[2m:[0m Config loaded [3mpath[0m[2m=[0m/Users/wangrenzhu/.zeroclaw/config.toml [3mworkspace[0m[2m=[0m/Users/wangrenzhu/.zeroclaw/workspace [3msource[0m[2m=[0m"default" [3minitialized[0m[2m=[0mfalse
+[2m2026-03-13T18:15:47.622072Z[0m [32m INFO[0m [2mzeroclaw[0m[2m:[0m 🚀 Starting ZeroClaw Gateway on 127.0.0.1:42617
+🦀 ZeroClaw Gateway listening on http://127.0.0.1:42617
+  🌐 Web Dashboard: http://127.0.0.1:42617/
+  POST /pair      — pair a new client (X-Pairing-Code header)
+  POST /webhook   — {"message": "your prompt"}
+  GET  /api/*     — REST API (bearer token required)
+  GET  /ws/chat   — WebSocket agent chat
+  GET  /health    — health check
+  GET  /metrics   — Prometheus metrics
+
+  🔐 PAIRING REQUIRED — use this one-time code:
+     ┌──────────────┐
+     │  413021  │
+     └──────────────┘
+     Send: POST /pair with header X-Pairing-Code: 413021
+  Press Ctrl+C to stop.
+
+[2m2026-03-13T18:17:19.681070Z[0m [32m INFO[0m [2mzeroclaw::gateway[0m[2m:[0m 🔐 New client paired successfully
+[2m2026-03-13T18:17:27.066475Z[0m [33m WARN[0m [2mzeroclaw::providers::reliable[0m[2m:[0m Non-retryable error, moving on [3mprovider[0m[2m=[0m"minimax" [3mmodel[0m[2m=[0m"MiniMax-M2.5-highspeed" [3merror[0m[2m=[0mMiniMax API error (401 Unauthorized): {"type":"error","error":{"type":"authorized_error","message":"invalid api key (2049)","http_code":"401"},"request_id":"060387b651d303732ab61ca50e146600"}
+[2m2026-03-13T18:17:27.067019Z[0m [33m WARN[0m [2mzeroclaw::providers::reliable[0m[2m:[0m Exhausted retries, trying next provider/model [3mprovider[0m[2m=[0m"minimax" [3mmodel[0m[2m=[0m"MiniMax-M2.5-highspeed"

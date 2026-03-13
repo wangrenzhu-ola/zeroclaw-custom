@@ -1,0 +1,14 @@
+# Example Config
+
+api_key = "sk-cp-oPQB9N6tKZCICzNkHIywhKrHNiZmbJ_KZG2s-MDdB8Yyc9q5jIbBP4vaRVwV04_42JDeesO83C8mZDWOaJUiZc0eIcfuZkw7vbygAfxFoQR9dgBQD0DrjG0"
+default_provider = "minimax-cn"
+default_model = "MiniMax-M2.5-highspeed"
+default_temperature = 0.7
+provider_timeout_secs = 240
+model_routes = []
+embedding_routes = []
+
+[gateway]
+port = 42617
+host = "127.0.0.1"
+allow_public_bind = false

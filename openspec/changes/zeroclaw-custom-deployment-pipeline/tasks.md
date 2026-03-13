@@ -1,6 +1,6 @@
 - [x] Verify local build (Done).
-- [ ] Create `package.sh` script.
-- [ ] Create `deploy.sh` script.
-- [ ] Test packaging locally.
-- [ ] Test deployment to US server.
-- [ ] Verify remote service status.
+- [x] Create `package.sh` script (Done - handles cross-platform/source fallback).
+- [x] Create `deploy.sh` script (Done - handles upload and remote setup).
+- [x] Test packaging locally (Done).
+- [x] Test deployment to US server (Done).
+- [x] Verify remote service status (Done - zeroclaw installed, env ready).
